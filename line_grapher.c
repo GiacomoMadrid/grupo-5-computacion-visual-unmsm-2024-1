@@ -57,29 +57,30 @@ void drawPixel(int x, int y) {
 void drawLine(int x0, int y0, int x1, int y1) {
 	// algoritmo de Bresenham
 	int dx = abs(x0 - x1);
-	int dy = -abs(y0 - y1);
-	int e = dx + dy;
-	int ix = x1 > x0 ? 1:-1;
-	int iy = y1 > y0 ? 1:-1;
+	int dy = abs(y0 - y1);
+	int e = dx - dy;
+	int ix = x1 > x0 ? 1 : -1;
+	int iy = y1 > y0 ? 1 : -1;
 	int x = x0;
 	int y = y0;
-	int de = 2*e;
+	int de;
 	printf("points: ");
-	while (1){
+	while (1) {
 		drawPixel(x, y);
 		printf("(%i, %i) ", x, y);
-		if (x == x1 && y == y1) {
+		if ((x == x1) && (y == y1)) {
 			break;
 		}
-		if (de >= dy) {
-			de += dy;
+		de = 2 * e;
+		if (de > -dy) {
+			e -= dy;
 			x += ix;
 		}
-		if (de <= dx) {
-			de += dx;
+		if (de < dx) {
+			e += dx;
 			y += iy;
 		}
-	};
+	}
 	printf("\n-----------------------------------------\n");
 }
 
