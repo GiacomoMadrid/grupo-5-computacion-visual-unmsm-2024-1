@@ -68,7 +68,7 @@ void drawLine(int x0, int y0, int x1, int y1) {
 	while (1){
 		drawPixel(x, y);
 		printf("(%i, %i) ", x, y);
-		if ((x == x1 && x0 != x1) || (y == y1 && y0 != y1)) {
+		if (x == x1 && y == y1) {
 			break;
 		}
 		if (de >= dy) {
