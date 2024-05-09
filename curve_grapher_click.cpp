@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-// Función de callback para manejar eventos de clic del mouse
+// FunciÃ³n de callback para manejar eventos de clic del mouse
 void mouseCallback(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 		clickedX = x;
@@ -135,7 +135,7 @@ void obtainData() {
 	scanf("%d", &y_2);
 }
 
-// funion para dibujar un píxel
+// funion para dibujar un pÃ­xel
 void drawPixel(int x, int y) {
 	glPointSize(1);
 	glBegin(GL_POINTS);
@@ -221,11 +221,23 @@ void fillConcavityPoints(int x_0, int y_0, int x_1, int y_1, int xa, int ya, vec
 		y_con_main = y_n;
 	}
 	
+	int index;
+	
+	for (size_t i = 0; i < concavityPoints.size(); i++) {
+		if (concavityPoints[i].x == x_0 && concavityPoints[i].y == y_0){
+			index = i;
+		}
+	}
+	
+	Point p = {x_n, y_n};
+	
+	concavityPoints.insert(concavityPoints.begin() + index, p);
+	
 	if (getDistancePointToRect(x_0, y_0, x_1, y_1, x_n, y_n) < 1) {
 		return;
 	}
-	Point p = {x_n, y_n};
-	concavityPoints.push_back(p);
+	//Point p = {x_n, y_n};
+	//concavityPoints.push_back(p);
 	fillConcavityPoints(x_0, y_0, x_n, y_n, x_0a, y_0a, concavityPoints);
 	fillConcavityPoints(x_n, y_n, x_1, y_1, x_1a, y_1a, concavityPoints);
 }
@@ -242,9 +254,14 @@ bool compareY(const Point &a, const Point &b) {
 
 vector<Point> getAllPointsOfCurve(int x_0, int y_0, int x_1, int y_1, int xa, int ya) {
 	vector<Point> concavityPoints;
-	fillConcavityPoints(x_0, y_0, x_1, y_1, xa, ya, concavityPoints);
+	
 	Point p0 = {x_0, y_0};
 	Point p1 = {x_1, y_1};
+	
+	concavityPoints.push_back(p0);
+	concavityPoints.push_back(p1);
+	
+	fillConcavityPoints(x_0, y_0, x_1, y_1, xa, ya, concavityPoints);
 	
 	printf("\nConcavity points: ");
 	for (const auto& point : concavityPoints) {
@@ -254,7 +271,7 @@ vector<Point> getAllPointsOfCurve(int x_0, int y_0, int x_1, int y_1, int xa, in
 	concavityPoints.push_back(p1);
 	
 	// ordenar el vector por coordenada x
-	sort(concavityPoints.begin(), concavityPoints.end(), compareY);
+	//sort(concavityPoints.begin(), concavityPoints.end(), compareY);
 	
 	vector<Point> allPointsOfCurve;
 	
