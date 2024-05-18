@@ -12,11 +12,13 @@ int hazPerspectiva = 0;
 void reshape(int width, int height) 
 { 
 	glViewport(0, 0, width, height); 
+	
 	glMatrixMode(GL_PROJECTION); 
 	glLoadIdentity(); 
+	//Defines perpective proyection
 	if(hazPerspectiva) 
-		gluPerspective(90.0f, (GLfloat)width/(GLfloat)height, 1.0f, 
-					   20.0f); 
+		gluPerspective(90.0f, (GLfloat)width/(GLfloat)height, 1.0f, 20.0f); 
+	//Defines orthographic projection
 	else 
 		glOrtho(-4, 4, -4, 4, 1, 10); 
 	
@@ -79,9 +81,12 @@ void drawCube(void)
 
 void display() 
 { 
+	//Clears color and depth/Z buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 
 	glLoadIdentity(); 
+	
+	//Transforms and draws cube
 	glTranslatef(0.0f, 0.0f, -5.0f); 
 	glRotatef(anguloCuboX, 1.0f, 0.0f, 0.0f); 
 	glRotatef(anguloCuboY, 0.0f, 1.0f, 0.0f); 
@@ -89,13 +94,18 @@ void display()
 	drawCube(); 
 	
 	glFlush(); 
+	
+	//Swaps the front and back buffers, displaying the rendered image
 	glutSwapBuffers(); 
 } 
 
 void init() 
 { 
 	glClearColor(0,0,0,0); 
+	
+	//Allow to render objects in the correct order based on their depth
 	glEnable(GL_DEPTH_TEST); 
+	
 	ancho = 400; 
 	alto = 400; 
 } 
@@ -112,11 +122,15 @@ void keyboard(unsigned char key, int x, int y)
 	case 'r': 
 		anguloCuboY+=10.0f;
 		hazPerspectiva=1; 
+		
+		//Sets new type of projection
 		reshape(ancho,alto); 
 		break; 
 	case 'l': 
 		anguloCuboY-=10.0f; 
 		hazPerspectiva=1; 
+		
+		//Sets new type of projection
 		reshape(ancho,alto); 
 		break; 
 	case 'u': 
@@ -127,17 +141,23 @@ void keyboard(unsigned char key, int x, int y)
 	case 'd': 
 		anguloCuboX+=10.0f; 
 		hazPerspectiva=1; 
+		
+		//Sets new type of projection
 		reshape(ancho,alto); 
 		break; 
 	case 'f': 
 		hazPerspectiva=0; 
-		reshape(ancho,alto); 
 		desp +=0.5f; 
+		
+		//Sets new type of projection
+		reshape(ancho,alto); 
 		break; 
 	case 'b': 
 		hazPerspectiva=0; 
-		reshape(ancho,alto); 
 		desp -=0.5f; 
+		
+		//Sets new type of projection
+		reshape(ancho,alto); 
 		break; 
 	case 27:   // escape 
 		exit(0); 
@@ -149,15 +169,20 @@ void keyboard(unsigned char key, int x, int y)
 int main(int argc, char **argv) 
 { 
 	glutInit(&argc, argv); 
+	//Sets 2 bufferes for 3D: a back buffer that gets swapped with the front buffer when rendering is complete 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); 
 	glutInitWindowPosition(100, 100); 
 	glutInitWindowSize(ancho, alto); 
 	glutCreateWindow("Cubo 1"); 
+	
 	init(); 
 	glutDisplayFunc(display); 
 	glutReshapeFunc(reshape); 
+	//Sets the idle callback function: called whenever there are no other events pending
 	glutIdleFunc(idle); 
+	//Sets the keyboard callback function: called whenever a keyboard key is pressed
 	glutKeyboardFunc(keyboard); 
 	glutMainLoop(); 
+	
 	return 0; 
 }
