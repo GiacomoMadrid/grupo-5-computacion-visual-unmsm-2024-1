@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-// FunciÃ³n de callback para manejar eventos de clic del mouse
+// funcion de callback para manejar eventos de clic del mouse
 void mouseCallback(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 		clickedX = x;
@@ -88,9 +88,6 @@ void mouseCallback(int button, int state, int x, int y) {
 			
 			drawPixel(x_1, y_1);
 			
-			x_2 = x_0;
-			y_2 = y_0;
-			
 			counter = 0; // reiniciamos el contador
 		}
 	}
@@ -107,7 +104,6 @@ void mouseCallback(int button, int state, int x, int y) {
 		y_2 = clickedY;
 	}
 }
-
 
 // funcion callback para manejar eventos de redimensionamiento de la ventana
 void reshape(int width, int height) {
@@ -182,16 +178,37 @@ vector<Point> getMissingPoints(int x_0, int y_0, int x_1, int y_1, vector<Point>
 	return missingPoints;
 }
 
+// funcion para dibujar una linea
+void drawLine(int x0, int y0, int x1, int y1) {
+	// algoritmo de Bresenham
+	int dx = abs(x0 - x1);
+	int dy = abs(y0 - y1);
+	int e = dx - dy;
+	int ix = x1 > x0 ? 1 : -1;
+	int iy = y1 > y0 ? 1 : -1;
+	int x = x0;
+	int y = y0;
+	int de;
+	while (1) {
+		drawPixel(x, y);
+		//printf("(%i, %i) ", x, y);
+		if ((x == x1) && (y == y1)) {
+			break;
+		}
+		de = 2 * e;
+		if (de > -dy) {
+			e -= dy;
+			x += ix;
+		}
+		if (de < dx) {
+			e += dx;
+			y += iy;
+		}
+	}
+}
+
 float getDistancePointToRect(int x_0, int y_0, int x_1, int y_1, int x_2, int y_2) {
-	// y - y_0 = m (x - x_0)
-	// 0 = m*x - y + (y_0 - m*x_0) 
-	
-	// 0 = A*x + B*y + C
-	
-	// A = m
-	// B = -1
-	// C = y_0 - m*x_0
-	// m =  (y_1 - y_0) / (x_1 - x_0)
+	printf("\nCalculando distancia");
 	float maxX = x_1 > x_0 ? x_1 : x_0;
 	float minX = x_1 == maxX ? x_0 : x_1;
 	bool divZero = x_1 != x_0 ? true : false; 
@@ -200,9 +217,19 @@ float getDistancePointToRect(int x_0, int y_0, int x_1, int y_1, int x_2, int y_
 	float b = -1;
 	float c = y_0 - m*x_0;
 	
+	printf("\nmaxX: ", maxX);
+	printf("\nminX: ", minX);
+	printf("\ndivZero: ", divZero);
+	printf("\nm: ", m);
+	printf("\na: ", a);
+	printf("\nb: ", b);
+	printf("\nc: ", c);
+	
 	// distance = |a*x_2 + b*y_2 + c| / sqrt(a*a + b*b)
 	double aux = a*x_2 + b*y_2 + c >= 0 ? a*x_2 + b*y_2 + c : -1*(a*x_2 + b*y_2 + c);
 	double distance =  divZero ? aux / pow(a*a + b*b, 0.5) : maxX - minX;
+	printf("\naux: ", aux);
+	printf("\ndistance: ", distance);
 	
 	return (float)distance;
 }
@@ -216,15 +243,15 @@ void fillConcavityPoints(int x_0, int y_0, int x_1, int y_1, int xa, int ya, vec
 	int x_n = ((x_0a + x_1a) % 2) == 0 ? (x_0a + x_1a) / 2 : ((int)((x_0a + x_1a) / 2)) + 1;
 	int y_n = ((y_0a + y_1a) % 2) == 0 ? (y_0a + y_1a) / 2 : ((int)((y_0a + y_1a) / 2)) + 1;
 	
+	int index;
+	
 	if (x_con_main == -1 && y_con_main == -1) {
 		x_con_main = x_n;
 		y_con_main = y_n;
 	}
 	
-	int index;
-	
 	for (size_t i = 0; i < concavityPoints.size(); i++) {
-		if (concavityPoints[i].x == x_0 && concavityPoints[i].y == y_0){
+		if (concavityPoints[i].x == x_1 && concavityPoints[i].y == y_1){
 			index = i;
 		}
 	}
@@ -233,72 +260,52 @@ void fillConcavityPoints(int x_0, int y_0, int x_1, int y_1, int xa, int ya, vec
 	
 	concavityPoints.insert(concavityPoints.begin() + index, p);
 	
-	if (getDistancePointToRect(x_0, y_0, x_1, y_1, x_n, y_n) < 1) {
+	if (getDistancePointToRect(x_0, y_0, x_1, y_1, xa, ya) < M_PI) {
 		return;
 	}
-	//Point p = {x_n, y_n};
-	//concavityPoints.push_back(p);
+	
 	fillConcavityPoints(x_0, y_0, x_n, y_n, x_0a, y_0a, concavityPoints);
 	fillConcavityPoints(x_n, y_n, x_1, y_1, x_1a, y_1a, concavityPoints);
 }
 
-// comparador para ordenar por coordenada x
-bool compareX(const Point &a, const Point &b) {
-	return a.x < b.x;
-}
-
-// comparador para ordenar por coordenada y
-bool compareY(const Point &a, const Point &b) {
-	return a.y < b.y;
-}
-
 vector<Point> getAllPointsOfCurve(int x_0, int y_0, int x_1, int y_1, int xa, int ya) {
+	//printf("\nCreando vector concavityPoints");
 	vector<Point> concavityPoints;
 	
 	Point p0 = {x_0, y_0};
 	Point p1 = {x_1, y_1};
 	
+	//printf("\nAgregamos los puntos extremos al vector");
 	concavityPoints.push_back(p0);
 	concavityPoints.push_back(p1);
 	
-	fillConcavityPoints(x_0, y_0, x_1, y_1, xa, ya, concavityPoints);
-	
-	printf("\nConcavity points: ");
-	for (const auto& point : concavityPoints) {
-		printf("(%d, %d) ", point.x, point.y);
+	if (x_2 != -1 && y_2 != -1) {
+		//printf("\nLlenamos el vector con puntos de concavidad");
+		fillConcavityPoints(x_0, y_0, x_1, y_1, xa, ya, concavityPoints);
 	}
-	concavityPoints.push_back(p0);
-	concavityPoints.push_back(p1);
 	
-	// ordenar el vector por coordenada x
-	//sort(concavityPoints.begin(), concavityPoints.end(), compareY);
+	//printf("\nConcavity points: ");
+	//for (const auto& point : concavityPoints) {
+	//	printf("(%d, %d) ", point.x, point.y);
+	//}
 	
-	vector<Point> allPointsOfCurve;
-	
-	for (size_t i = 0; i < concavityPoints.size() - 1; i++) {
-		int x_0 = concavityPoints[i].x;
-		int y_0 = concavityPoints[i].y;
-		int x_1 = concavityPoints[i+1].x;
-		int y_1 = concavityPoints[i+1].y;
-		vector<Point> missingPoints = getMissingPoints(x_0, y_0, x_1, y_1, allPointsOfCurve);
-		allPointsOfCurve.insert(allPointsOfCurve.end(), missingPoints.begin(), missingPoints.end());
-	}
-	return allPointsOfCurve;
+	return concavityPoints;
 }
 
 
 void drawCurve() {
-	
-	for (size_t i = 0; i < allPointsOfCurve.size(); i++) {
-		int x = allPointsOfCurve[i].x;
-		int y = allPointsOfCurve[i].y;
-		drawPixel(x, y);
+	for (size_t i = 0; i < allPointsOfCurve.size() - 1; i++) {		
+		int x_0 = allPointsOfCurve[i].x;
+		int y_0 = allPointsOfCurve[i].y;
+		int x_1 = allPointsOfCurve[i+1].x;
+		int y_1 = allPointsOfCurve[i+1].y;
+		drawLine(x_0, y_0, x_1, y_1);
 	}
 }
 
 // funcion de inicializacion de OpenGL
 void init() {
-	glClearColor(0, 0, 0, 0); // establecemos el color de fondo a negro
+	glClearColor(0, 0, 0, 0);
 }
 
 // funcion de dibujado principal
@@ -306,9 +313,7 @@ void display() {
 	// limpiamos la pantalla
 	glClear(GL_COLOR_BUFFER_BIT);
 	// si las coordenadas son validas
-	if (x_0 != -1 && y_0 != -1 && x_1 != -1 && y_1 != -1 && x_2 != -1 && y_2 != -1) {
-		drawPixel(x_con_main, y_con_main);
-		printf("\ndistance: %f", getDistancePointToRect(x_0, y_0, x_1, y_1, x_con_main, y_con_main));
+	if (x_0 != -1 && y_0 != -1 && x_1 != -1 && y_1 != -1) {
 		allPointsOfCurve = getAllPointsOfCurve(x_0, y_0, x_1, y_1, x_2, y_2);
 		// graficamos la curva
 		drawCurve();
