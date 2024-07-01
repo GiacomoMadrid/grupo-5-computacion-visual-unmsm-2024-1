@@ -84,8 +84,8 @@ def main():
         #frame = cv2.imread("imagen1.png")
 
         binary=a_binario(frame)
-        contours=hallar_contornos(frame,binary)
-        puntos_2d = media_puntos(contours)
+        contours=hallar_contornos(binary)
+        puntos_2d = media_puntos(frame,contours)
         hallar_puntos_3d(puntos_2d)
 
         angulo_recorrido+=angle_per_frame

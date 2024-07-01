@@ -6,3 +6,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+#Txt file output
+.3d_coordinates.txt
