@@ -4,15 +4,22 @@ import numpy as np
 angulo_laser_y_camara=45
 angulo_recorrido=0
 
-def a_binario(frame):
-    # To binary
+def a_binario_rojo(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     lower_red = np.array([159, 50, 200])    
     upper_red = np.array([180, 255, 255]) 
     binary= cv2.inRange(hsv, lower_red, upper_red)
     binary = cv2.bitwise_not(binary)
-    #Treat noise
-    kernel = np.ones((2, 2), np.uint8)
+    return binary
+
+def a_binario_blanco(frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    _, binary = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY_INV)
+    binary = cv2.bitwise_not(binary)
+    return binary
+
+def tratar_ruido(binary):
+    kernel = np.ones((4, 4), np.uint8)
     binary = cv2.erode(binary, kernel, iterations=1)
     binary = cv2.dilate(binary, kernel, iterations=1)
     return binary
@@ -72,7 +79,8 @@ def main():
         if not ret:
             break  # End of video
 
-        binary=a_binario(frame)
+        binary=a_binario_rojo(frame)
+        binary=tratar_ruido(binary)
         contours=hallar_contornos(binary)
         puntos_2d = media_puntos(frame,contours)
         puntos_3d = hallar_puntos_3d(puntos_2d)
