@@ -71,7 +71,7 @@ def main():
     acum_puntos_3d=[]
 
     #Open video
-    cap = cv2.VideoCapture('scaner/video3.mp4')
+    cap = cv2.VideoCapture('video3.mp4')
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     angle_per_frame = 360.0 / frame_count
     if not cap.isOpened():
